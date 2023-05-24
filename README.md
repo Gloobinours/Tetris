@@ -1,7 +1,12 @@
-#Tetris game
+# Tetris game
+
 An online tetris game built using JavaScript and React
-##Team
+
+## Team
+
 - [Gloobinours](https://github.com/Gloobinours)
 - [Jhailos](https://github.com/Jhailos)
-##How to play
+
+## How to play
+
 Go to the link: 
