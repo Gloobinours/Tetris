@@ -16,15 +16,26 @@ export class Block {
       rotatedTiles.push(newRow);
     }
     this.tiles = rotatedTiles;
+
+    // if rotated block is out of bounds, move it back in bounds
+    if (this.x + this.tiles[0].length >= window.WIDTH) {
+      this.x = window.WIDTH - this.tiles[0].length;
+    }
+    if (this.y + this.tiles.length >= window.HEIGHT) {
+      this.y = window.HEIGHT - this.tiles.length;
+    }
   }
 
   moveLeft() {
+    if (this.x <= 0) {return;}
     this.x--;
   }
   moveRight() {
+    if (this.x + this.tiles[0].length >= window.WIDTH) {return;}
     this.x++;
   }
   moveDown() {
+    if (this.isAtBottom()) {return;}
     this.y++;
   }
   snapDown() {
@@ -37,7 +48,7 @@ export class Block {
     for (let i = 0; i < this.tiles.length; i++) {
       for (let j = 0; j < this.tiles[i].length; j++) {
         if (this.tiles[i][j] === 1) {
-          if (this.y + i === HEIGHT - 1) {
+          if (this.y + i === window.HEIGHT - 1) {
             return true;
           }
           if (gameBoard[this.y + i + 1][this.x + j] !== null) {
