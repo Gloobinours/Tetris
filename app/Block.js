@@ -1,21 +1,18 @@
 export class Block {
   constructor(tiles, color, x) {
-    this.tiles = [];
-    this.color = '';
-    this.x = 3;
+    this.tiles = tiles;
+    this.color = color;
+    this.x = x;
     this.y = 0;
   }
 
   rotate() {
-    let rotated = [];
-    for (let i = 0; i < this.tiles.length; i++) {
-      let row = [];
-      for (let j = 0; j < this.tiles[i].length; j++) {
-        row.push(this.tiles[j][i]);
+    let temp = new Array(this.tiles.length).fill(defaultValue);
+    for (let j = 0; j < this.tiles.length; j++) {
+      for (let i = 0; this.tiles[i].length >= 0; i--) {
+        temp[i][j].push(this.tiles[j][i]);
       }
-      rotated.push(row.reverse());
     }
-    this.tiles = rotated;
   }
 
   moveLeft() {
