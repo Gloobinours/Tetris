@@ -1,9 +1,9 @@
 import { Queue } from './Queue.js';
 import { Block } from './Block.js';
 
-let gameBoard = [];
-const HEIGHT = 20;
-const WIDTH = 10;
+window.gameBoard = [];
+window.HEIGHT = 20;
+window.WIDTH = 10;
 const QUEUE_SIZE = 5;
 let currentBlock = {};
 let queue;
@@ -23,10 +23,10 @@ let blocks = {
 }
 
 function createGameBoard() {
-  for (let i = 0; i < HEIGHT; i++) {
-    gameBoard[i] = [];
-    for (let j = 0; j < WIDTH; j++) {
-      gameBoard[i][j] = null;
+  for (let i = 0; i < window.HEIGHT; i++) {
+    window.gameBoard[i] = [];
+    for (let j = 0; j < window.WIDTH; j++) {
+      window.gameBoard[i][j] = null;
     }
   }
 }
@@ -44,17 +44,17 @@ function drawBlock(block) {
       if (block.tiles[i][j] === 1) {
         ctx.fillStyle = block.color;
         ctx.fillRect(
-          (block.x + j) * canvas.width/WIDTH, 
-          (block.y + i) * canvas.height/HEIGHT, 
-          canvas.width/WIDTH, 
-          canvas.height/HEIGHT);
+          (block.x + j) * canvas.width/window.WIDTH, 
+          (block.y + i) * canvas.height/window.HEIGHT, 
+          canvas.width/window.WIDTH, 
+          canvas.height/window.HEIGHT);
         ctx.strokeStyle = 'black';
         ctx.lineWidth = 3;
         ctx.strokeRect(
-          (block.x + j) * canvas.width/WIDTH, 
-          (block.y + i) * canvas.height/HEIGHT, 
-          canvas.width/WIDTH, 
-          canvas.height/HEIGHT
+          (block.x + j) * canvas.width/window.WIDTH, 
+          (block.y + i) * canvas.height/window.HEIGHT, 
+          canvas.width/window.WIDTH, 
+          canvas.height/window.HEIGHT
         );
       }
     }
@@ -69,22 +69,22 @@ function drawGameBoard() {
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.strokeStyle = 'black';
   ctx.strokeRect(0, 0, canvas.width, canvas.height);
-  for (let i = 0; i < HEIGHT; i++) {
-    for (let j = 0; j < WIDTH; j++) {
-      if (gameBoard[i][j] !== null) {
-        ctx.fillStyle = gameBoard[i][j];
+  for (let i = 0; i < window.HEIGHT; i++) {
+    for (let j = 0; j < window.WIDTH; j++) {
+      if (window.gameBoard[i][j] !== null) {
+        ctx.fillStyle = window.gameBoard[i][j];
         ctx.fillRect(
-          j * canvas.width/WIDTH, 
-          i * canvas.height/HEIGHT, 
-          canvas.width/WIDTH, 
-          canvas.height/HEIGHT);
+          j * canvas.width/window.WIDTH, 
+          i * canvas.height/window.HEIGHT, 
+          canvas.width/window.WIDTH, 
+          canvas.height/window.HEIGHT);
         ctx.strokeStyle = 'black';
         ctx.lineWidth = 3;
         ctx.strokeRect(
-          j * canvas.width/WIDTH, 
-          i * canvas.height/HEIGHT, 
-          canvas.width/WIDTH, 
-          canvas.height/HEIGHT
+          j * canvas.width/window.WIDTH, 
+          i * canvas.height/window.HEIGHT, 
+          canvas.width/window.WIDTH, 
+          canvas.height/window.HEIGHT
         );
       }
     }
@@ -103,6 +103,12 @@ function init() {
 
   // initialize current block
   currentBlock = createRandomBlock();
+
+  // begin auto drop
+  let autoDrop = setInterval(() => {
+    currentBlock.moveDown();
+  }, speed);
+  
 }
 
 init();
