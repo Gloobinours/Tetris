@@ -18,7 +18,7 @@ let blocks = {
   "L-right": new Block([[0,0,1], [1,1,1]], 'orange', 3),
   "Z-left": new Block([[1,1,0], [0,1,1]], 'red', 3),
   "Z-right": new Block([[0,1,1], [1,1,0]], 'green', 3),
-  "bar": new Block([[1,1,1,1]], 'cyan', 2),
+  "bar": new Block([[1,1,1,1], []], 'cyan', 3),
   "square": new Block([[1,1], [1,1]], 'yellow', 4)
 }
 
@@ -37,17 +37,32 @@ function createRandomBlock() { // creates random block
   return blocks[randomBlockName];
 }
 
-function spawnBlock(block) { // spawns block at top of board
+function drawBlock(block) {
+  ctx.translate(0.5, 0.5);
   for (let i = 0; i < block.tiles.length; i++) {
     for (let j = 0; j < block.tiles[i].length; j++) {
       if (block.tiles[i][j] === 1) {
-        gameBoard[i+y][j+x] = block.color;
+        ctx.fillStyle = block.color;
+        ctx.fillRect(
+          (block.x + j) * canvas.width/WIDTH, 
+          (block.y + i) * canvas.height/HEIGHT, 
+          canvas.width/WIDTH, 
+          canvas.height/HEIGHT);
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(
+          (block.x + j) * canvas.width/WIDTH, 
+          (block.y + i) * canvas.height/HEIGHT, 
+          canvas.width/WIDTH, 
+          canvas.height/HEIGHT
+        );
       }
     }
   }
+  ctx.translate(-0.5, -0.5);
 }
 
-function draw() {
+function drawGameBoard() {
   ctx.translate(0.5, 0.5);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.fillStyle = 'black'; // wtf?
@@ -86,40 +101,40 @@ function init() {
     queue.enqueue(createRandomBlock());
   }
 
-  // create current block
+  // initialize current block
   currentBlock = createRandomBlock();
 }
 
 init();
-spawnBlock(currentBlock);
+
+document.addEventListener('keydown', function(event) {
+  switch (event.code) {
+    case 'ArrowDown':
+      // Handle up arrow key press
+      currentBlock.moveDown();
+      break;
+    case 'ArrowLeft':
+      // Handle left arrow key press
+      currentBlock.moveLeft();
+      break;
+    case 'ArrowRight':
+      // Handle right arrow key press
+      currentBlock.moveRight();
+      break;
+    case 'ArrowUp': // rotate right
+      // Handle right arrow key press
+      currentBlock.rotate();
+      break;
+    case 'Space':
+      // Handle right arrow key press
+      currentBlock.snapDown();
+      break; 
+  }
+});
 
 function gameLoop() {
-  document.addEventListener('keydown', function(event) {
-    switch (event.code) {
-      case 'ArrowDown':
-        // Handle up arrow key press
-        currentBlock.moveDown();
-        break;
-      case 'ArrowLeft':
-        // Handle left arrow key press
-        currentBlock.moveLeft();
-        break;
-      case 'ArrowRight':
-        // Handle right arrow key press
-        currentBlock.moveRight();
-        break;
-      case 'x': // rotate right
-        // Handle right arrow key press
-        currentBlock.rotate();
-        break;
-      case 'Space':
-        // Handle right arrow key press
-        currentBlock.snapDown();
-        break; 
-    }
-  });
-
-  draw();
+  drawGameBoard();
+  drawBlock(currentBlock);
   window.requestAnimationFrame(gameLoop);
 }
 
