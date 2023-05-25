@@ -7,12 +7,15 @@ export class Block {
   }
 
   rotate() {
-    let temp = new Array(this.tiles.length).fill(defaultValue);
-    for (let j = 0; j < this.tiles.length; j++) {
-      for (let i = 0; this.tiles[i].length >= 0; i--) {
-        temp[i][j].push(this.tiles[j][i]);
+    const rotatedTiles = [];
+    for (let i = 0; i < this.tiles[0].length; i++) {
+      const newRow = [];
+      for (let j = this.tiles.length - 1; j >= 0; j--) {
+        newRow.push(this.tiles[j][i]);
       }
+      rotatedTiles.push(newRow);
     }
+    this.tiles = rotatedTiles;
   }
 
   moveLeft() {
@@ -25,6 +28,25 @@ export class Block {
     this.y++;
   }
   snapDown() {
-    // TODO!
+    while (!this.isAtBottom()) {
+      this.moveDown();
+    }
   }
+
+  isAtBottom() {
+    for (let i = 0; i < this.tiles.length; i++) {
+      for (let j = 0; j < this.tiles[i].length; j++) {
+        if (this.tiles[i][j] === 1) {
+          if (this.y + i === HEIGHT - 1) {
+            return true;
+          }
+          if (gameBoard[this.y + i + 1][this.x + j] !== null) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+
 }
