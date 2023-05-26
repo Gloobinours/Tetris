@@ -12,6 +12,7 @@ let ctx = canvas.getContext('2d');
 let level = 1;
 let speed = 500/level;
 
+// list of blocks
 let blocks = {
   "T": new Block([[0,1,0], [1,1,1]], 'purple', 3),
   "L-left": new Block([[1,0,0], [1,1,1]], 'blue', 3),
@@ -22,6 +23,7 @@ let blocks = {
   "square": new Block([[1,1], [1,1]], 'yellow', 4)
 }
 
+// create a game board
 function createGameBoard() {
   for (let i = 0; i < window.HEIGHT; i++) {
     window.gameBoard[i] = [];
@@ -31,12 +33,14 @@ function createGameBoard() {
   }
 }
 
+// create a block
 function createRandomBlock() { // creates random block
   let blockNames = Object.keys(blocks);
   let randomBlockName = blockNames[Math.floor(Math.random() * blockNames.length)];
   return blocks[randomBlockName];
 }
 
+// Draw current block
 function drawBlock(block) {
   ctx.translate(0.5, 0.5);
   for (let i = 0; i < block.tiles.length; i++) {
@@ -62,10 +66,11 @@ function drawBlock(block) {
   ctx.translate(-0.5, -0.5);
 }
 
+// Draw board
 function drawGameBoard() {
   ctx.translate(0.5, 0.5);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = 'black'; // wtf?
+  ctx.fillStyle = 'cyan';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.strokeStyle = 'black';
   ctx.strokeRect(0, 0, canvas.width, canvas.height);
@@ -90,9 +95,11 @@ function drawGameBoard() {
     }
   }
   ctx.translate(-0.5, -0.5);
+  console.log(currentBlock.x, currentBlock.y);
 }
 
 function init() {
+  // create game board
   createGameBoard();
 
   // create queue
@@ -104,7 +111,7 @@ function init() {
   // initialize current block
   currentBlock = createRandomBlock();
 
-  // begin auto drop
+  // begin auto drop (gravity)
   let autoDrop = setInterval(() => {
     currentBlock.moveDown();
   }, speed);
@@ -113,6 +120,7 @@ function init() {
 
 init();
 
+// Key stroke listenener
 document.addEventListener('keydown', function(event) {
   switch (event.code) {
     case 'ArrowDown':
@@ -138,6 +146,7 @@ document.addEventListener('keydown', function(event) {
   }
 });
 
+// Game Loop
 function gameLoop() {
   drawGameBoard();
   drawBlock(currentBlock);
