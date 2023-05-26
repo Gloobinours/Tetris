@@ -9,7 +9,7 @@ let currentBlock = {};
 let queue;
 let canvas = document.getElementById('gameBoard');
 let ctx = canvas.getContext('2d');
-let level = 1;
+let level = 10;
 let speed = 500/level;
 let score = 0;
 
@@ -48,6 +48,20 @@ function placeBlock(block) {
       if (block.tiles[i][j] === 1) {
         window.gameBoard[block.y + i][block.x + j] = block.color;
       }
+    }
+  }
+  // check for full rows
+  for (let i = 0; i < window.HEIGHT; i++) {
+    if (isRowFull(window.gameBoard[i])) {
+      clearRow(i);
+      score += 100 * level;
+    }
+  }
+  // check for game over
+  for (let i = 0; i < window.WIDTH; i++) {
+    if (window.gameBoard[0][i] !== null) {
+      alert('Game Over!');
+      init();
     }
   }
 }
@@ -156,13 +170,6 @@ setInterval(() => {
         placeBlock(currentBlock);
         currentBlock = queue.dequeue();
         queue.enqueue(createRandomBlock())
-        
-        // check for full rows
-        for (let i = 0; i < window.HEIGHT; i++) {
-          if (isRowFull(window.gameBoard[i])) {
-            clearRow(i);
-          }
-        }
       }
     }, speed);
   }
@@ -190,6 +197,7 @@ document.addEventListener('keydown', function(event) {
     case 'Space':
       // Handle right arrow key press
       currentBlock.snapDown();
+      placeBlock(currentBlock);
       break; 
   }
 });
