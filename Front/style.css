@@ -10,13 +10,20 @@ body {
 #gameBoard {
   background-color: #fff;
   border: 2px solid #000;
-  margin: 0 auto;
-  position: absolute;
+  position: relative;
   display: block;
   image-rendering: -moz-crisp-edges;
   image-rendering: -webkit-crisp-edges;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
+}
+
+#queue {
+  display: block;
+  position: relative;
+  width: 200px;
+  height: 90vh;
+  background-color: rgb(255, 0, 0);
 }
 
 .container {
