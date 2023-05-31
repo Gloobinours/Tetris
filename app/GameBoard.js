@@ -5,16 +5,18 @@ window.gameBoard = [];
 window.HEIGHT = 20;
 window.WIDTH = 10;
 window.init = init;
+window.restartGame = restartGame;
 const QUEUE_SIZE = 5;
 let currentBlock = {};
 let queue;
 let intervalId;
 let canvas = document.getElementById('gameBoard');
 let ctx = canvas.getContext('2d');
-let level = 1;
-let speed = 1000/level;
 let score = 0;
+let level = 1;
+let speed = 1000;
 let hold;
+let gameOver = false;
 
 // list of blocks
 let blocks = {
@@ -72,10 +74,15 @@ function changeHold() {
   }
 
   drawHold();
+
+  // reset location data
+  currentBlock.y = 0;
+  currentBlock.x = 3
 }
 
 function drawScore() {
   document.getElementById("score").innerHTML=`Score: ${score}`;
+  document.getElementById("level").innerHTML=`Level: ${level}`;
 }
 
 function drawQueue() {
@@ -129,12 +136,23 @@ function placeBlock(block) {
   isGameOver();
 }
 
+// restart the game
+function restartGame() {
+  let text = document.getElementById("textbox").value;
+  if (text == "I AM A LOSER") {
+    document.getElementById("textbox").value = "";
+    init();
+  }
+}
+
 // check if game is over and end game
 function isGameOver() {
   for (let i = 0; i < window.WIDTH; i++) {
     if (window.gameBoard[0][i] !== null) {
       document.getElementById('modal').style.display = 'flex';
       clearInterval(intervalId);
+      document.getElementById("gif").src = window.top_10_gifs[Math.round(Math.random()*29)]["media_formats"]["gif"]["url"];
+      gameOver = true;
       return true;
     }
   }
@@ -153,8 +171,10 @@ function isRowFull(row) {
 
 // clear a row and move everything down
 function clearRows() {
+  let rowsBroken = 0
   for (let row = 0; row < window.HEIGHT; row++) {
     if (isRowFull(window.gameBoard[row])) {
+      rowsBroken += 1;
       // move each row down
       for (let rowIndex = row; rowIndex > 0; rowIndex--) {
         window.gameBoard[rowIndex] = window.gameBoard[rowIndex-1];
@@ -165,8 +185,11 @@ function clearRows() {
         window.gameBoard[0][rowIndex] = null;
       }
       // update score
-      score += 100 * level;
+      score += 100 * rowsBroken;
       drawScore()
+      level = Math.ceil(score/1000)
+      speed = 1000/level
+      console.log(level);
     }
   }
 }
@@ -231,6 +254,8 @@ function drawGameBoard() {
 // START GAME
 function init() {
 
+  gameOver = false;
+  score = 0;
   window.requestAnimationFrame(gameLoop);
 
   // Hide modal
@@ -250,32 +275,6 @@ function init() {
   currentBlock = generateBlock();
 
   runInterval();
-
-  // Key stroke listenener
-  document.addEventListener('keydown', function(event) {
-    switch (event.code) {
-      case 'ArrowDown': // move block down
-        currentBlock.moveDown();
-        break;
-      case 'ArrowLeft': // move block left
-        currentBlock.moveLeft();
-        break;
-      case 'ArrowRight': // move block right
-        currentBlock.moveRight();
-        break;
-      case 'ArrowUp': // rotate block right
-        currentBlock.rotate();
-        break;
-      case 'Space': // snap block down
-        currentBlock.snapDown();
-        runInterval(true);
-        break;
-      case 'KeyC': // hold block
-        changeHold();
-        break;
-    }
-  });
-
   drawScore()
 }
 
@@ -304,11 +303,39 @@ function runInterval(placeable=false) {
   }, speed);
 }
 
+// Key stroke listenener
+document.addEventListener('keydown', function(event) {
+  switch (event.code) {
+    case 'ArrowDown': // move block down
+      currentBlock.moveDown();
+      break;
+    case 'ArrowLeft': // move block left
+      currentBlock.moveLeft();
+      break;
+    case 'ArrowRight': // move block right
+      currentBlock.moveRight();
+      break;
+    case 'ArrowUp': // rotate block right
+      currentBlock.rotate();
+      break;
+    case 'Space': // snap block down
+    if (gameOver == true) return;
+      currentBlock.snapDown();
+      runInterval(true);
+      break;
+    case 'KeyC': // hold block
+      changeHold();
+      break;
+  }
+});
+
 init();
 
 // Game Loop
 function gameLoop() {
+  if (gameOver == true) return;
   drawGameBoard();
   drawBlock(currentBlock);
   window.requestAnimationFrame(gameLoop);
+  console.log("game loop");
 }

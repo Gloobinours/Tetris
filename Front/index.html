@@ -8,13 +8,17 @@
     <div id="modal">
       <div id="modal-box">
         <h2>Game Over!</h2>
-        <button onclick="init()">Restart</button>
+        <img src="" alt="" id="gif" on>
+        <input type="text" id="textbox" placeholder='Type "I AM A LOSER" to continue' onkeyup="restartGame()">
       </div>
     </div>
     <div class="container">
       <div id="left-menu">
         <canvas id="hold" height="1500" width="2000"></canvas>
-        <h2 id="score"></h2>
+        <div>
+          <h2 id="score"></h2>
+          <h2 id="level"></h2>
+        </div>
       </div>
       <canvas id="gameBoard" height="4000" width="2000"></canvas>
       <div id="queue">
@@ -22,5 +26,6 @@
       </div>
     </div>
     <script type="module" src="../app/GameBoard.js"></script>
+    <script type="module" src="../app/Main.js"></script>
   </body>
 </html>
