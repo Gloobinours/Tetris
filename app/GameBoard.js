@@ -4,6 +4,7 @@ import { Block } from './Block.js';
 window.gameBoard = [];
 window.HEIGHT = 20;
 window.WIDTH = 10;
+window.init = init;
 const QUEUE_SIZE = 5;
 let currentBlock = {};
 let queue;
@@ -89,8 +90,7 @@ function placeBlock(block) {
   // check for game over
   for (let i = 0; i < window.WIDTH; i++) {
     if (window.gameBoard[0][i] !== null) {
-      alert('Game Over!');
-      init();
+      document.getElementById('modal').style.visibility = 'visible';
     }
   }
 }
@@ -178,7 +178,11 @@ function drawGameBoard() {
   ctx.translate(-0.5, -0.5);
 }
 
+// START GAME
 function init() {
+  // Hide modal
+  document.getElementById('modal').style.visibility = 'hidden';
+
   // create game board
   createGameBoard();
 
