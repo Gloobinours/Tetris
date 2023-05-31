@@ -93,7 +93,6 @@ function placeBlock(block) {
       init();
     }
   }
-  drawQueue();
 }
 
 // check if a row is full
@@ -201,6 +200,7 @@ function runInterval(placeable=false) {
     placeBlock(currentBlock);
     currentBlock = queue.dequeue();
     queue.enqueue(generateBlock());
+    drawQueue();
     placeable = false;
   }
   intervalId = setInterval(() => {
@@ -211,6 +211,7 @@ function runInterval(placeable=false) {
         placeBlock(currentBlock);
         currentBlock = queue.dequeue();
         queue.enqueue(generateBlock());
+        drawQueue();
         placeable = false;
       } else placeable = true;
     }
