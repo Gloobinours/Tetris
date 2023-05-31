@@ -10,20 +10,23 @@ body {
 #gameBoard {
   background-color: #fff;
   border: 2px solid #000;
+  height: 90vh;
+  width: 45vh;
   position: relative;
   display: block;
-  image-rendering: -moz-crisp-edges;
-  image-rendering: -webkit-crisp-edges;
-  image-rendering: pixelated;
-  image-rendering: crisp-edges;
 }
 
 #queue {
   display: block;
   position: relative;
-  width: 200px;
+  width: 30vh;
   height: 90vh;
-  background-color: rgb(255, 0, 0);
+  background-color: rgb(168, 168, 168);
+}
+#queueCanvas {
+  width: auto;
+  height: 100%;
+  position: absolute;
 }
 
 .container {
@@ -33,4 +36,8 @@ body {
   display:flex;
   justify-content: center;
   align-items: center;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: -webkit-crisp-edges;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
 }
