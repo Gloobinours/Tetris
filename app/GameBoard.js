@@ -7,10 +7,11 @@ window.WIDTH = 10;
 const QUEUE_SIZE = 5;
 let currentBlock = {};
 let queue;
-let canvas = document.getElementById('gameBoard');
+let intervalId;
+export let canvas = document.getElementById('gameBoard');
 let ctx = canvas.getContext('2d');
-let level = 10;
-let speed = 500/level;
+let level = 1;
+let speed = 1000/level;
 let score = 0;
 
 // list of blocks
@@ -34,8 +35,36 @@ function createGameBoard() {
   }
 }
 
+function drawQueue() {
+  // Get the canvas element for the queue
+  let queueCanvas = document.getElementById("queueCanvas");
+  let queueCtx = queueCanvas.getContext("2d");
+
+  // Clear the canvas
+  queueCtx.clearRect(0, 0, queueCanvas.width, queueCanvas.height);
+
+  // Draw each block in the queue
+  let yDisplace = queueCanvas.height/20;
+  for (let item = 0; item < queue.size(); item++) {
+    let block = queue.getItems()[item];
+    for (let i = 0; i < block.tiles.length; i++) {
+      for (let j = 0; j < block.tiles[i].length; j++) {
+        if (block.tiles[i][j] === 1) {
+          queueCtx.fillStyle = block.color;
+          queueCtx.fillRect(
+          j * queueCanvas.width/10 + queueCanvas.width/6, 
+          i * queueCanvas.height/20 + yDisplace, 
+          queueCanvas.width/10, 
+          queueCanvas.height/20);
+        }
+      }
+    }
+    yDisplace += queueCanvas.height/QUEUE_SIZE;
+  }
+}
+
 // create a block
-function createRandomBlock() { // creates random block
+function generateBlock() { // generates a random block
   let blockNames = Object.keys(blocks);
   let randomBlockName = blockNames[Math.floor(Math.random() * blockNames.length)];
   return new Block(blocks[randomBlockName][0], blocks[randomBlockName][1], blocks[randomBlockName][2]);
@@ -64,6 +93,7 @@ function placeBlock(block) {
       init();
     }
   }
+  drawQueue();
 }
 
 // check if a row is full
@@ -100,7 +130,7 @@ function drawBlock(block) {
           canvas.width/window.WIDTH, 
           canvas.height/window.HEIGHT);
         ctx.strokeStyle = 'black';
-        ctx.lineWidth = 3;
+        ctx.lineWidth = 15;
         ctx.strokeRect(
           (block.x + j) * canvas.width/window.WIDTH, 
           (block.y + i) * canvas.height/window.HEIGHT, 
@@ -112,6 +142,11 @@ function drawBlock(block) {
   }
   ctx.translate(-0.5, -0.5);
 }
+
+// window.addEventListener('resize', () => {
+//   canvas.style.height = `${Math.round(parseFloat(getComputedStyle(canvas).height))}px`;
+//   canvas.style.width = `${Math.round(parseFloat(getComputedStyle(canvas).width))}px`;
+// });
 
 // Draw board
 function drawGameBoard() {
@@ -131,7 +166,7 @@ function drawGameBoard() {
           canvas.width/window.WIDTH, 
           canvas.height/window.HEIGHT);
         ctx.strokeStyle = 'black';
-        ctx.lineWidth = 3;
+        ctx.lineWidth = 15;
         ctx.strokeRect(
           j * canvas.width/window.WIDTH, 
           i * canvas.height/window.HEIGHT, 
@@ -151,29 +186,39 @@ function init() {
   // create queue
   queue = new Queue();
   for (let i = 0; i < QUEUE_SIZE; i++) {
-    queue.enqueue(createRandomBlock());
+    queue.enqueue(generateBlock());
   }
+  drawQueue();
 
   // initialize current block
-  currentBlock = createRandomBlock();
+  currentBlock = generateBlock();
+}
+
+// start/restart interval loop
+function runInterval(placeable=false) {
+  clearInterval(intervalId);
+  if (placeable) {
+    placeBlock(currentBlock);
+    currentBlock = queue.dequeue();
+    queue.enqueue(generateBlock());
+    placeable = false;
+  }
+  intervalId = setInterval(() => {
+    // auto drop (gravity)
+    currentBlock.moveDown();
+    if (currentBlock.isAtBottom()) {
+      if (placeable) {
+        placeBlock(currentBlock);
+        currentBlock = queue.dequeue();
+        queue.enqueue(generateBlock());
+        placeable = false;
+      } else placeable = true;
+    }
+  }, speed);
 }
 
 init();
-
-// begin auto drop (gravity)
-setInterval(() => {
-  // begin auto drop (gravity)
-  currentBlock.moveDown();
-  if (currentBlock.isAtBottom()) {
-    setTimeout(() => {
-      if (currentBlock.isAtBottom()) {
-        placeBlock(currentBlock);
-        currentBlock = queue.dequeue();
-        queue.enqueue(createRandomBlock())
-      }
-    }, speed);
-  }
-}, speed);
+runInterval();
 
 // Key stroke listenener
 document.addEventListener('keydown', function(event) {
@@ -197,7 +242,7 @@ document.addEventListener('keydown', function(event) {
     case 'Space':
       // Handle right arrow key press
       currentBlock.snapDown();
-      placeBlock(currentBlock);
+      runInterval(true);
       break; 
   }
 });
