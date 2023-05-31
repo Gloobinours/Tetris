@@ -1,6 +1,6 @@
 # Tetris game
 
-An online tetris game built using JavaScript and React
+An online tetris game built using JavaScript, HTML and CSS
 
 ## Team
 
@@ -9,4 +9,13 @@ An online tetris game built using JavaScript and React
 
 ## How to play
 
-Go to the link: 
+Go to the link: https://gloobinours.github.io/Tetris/Front/
+
+### Controls
+
+- ↓ = Move faster
+- → = Move right
+- ← = Move left
+- ↑ = Rotate
+- spacebar = Snap to bottom
+- c = Hold block
