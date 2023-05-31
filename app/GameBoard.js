@@ -9,11 +9,12 @@ const QUEUE_SIZE = 5;
 let currentBlock = {};
 let queue;
 let intervalId;
-export let canvas = document.getElementById('gameBoard');
+let canvas = document.getElementById('gameBoard');
 let ctx = canvas.getContext('2d');
 let level = 1;
 let speed = 1000/level;
 let score = 0;
+let hold;
 
 // list of blocks
 let blocks = {
@@ -34,6 +35,47 @@ function createGameBoard() {
       window.gameBoard[i][j] = null;
     }
   }
+}
+
+function drawHold() {
+  // Get the canvas element for the queue
+  let holdCanvas = document.getElementById("hold");
+  let holdCtx = holdCanvas.getContext("2d");
+
+  // Clear the canvas
+  holdCtx.clearRect(0, 0, holdCanvas.width, holdCanvas.height);
+
+  // draw block
+  for (let i = 0; i < hold.tiles.length; i++) {
+    for (let j = 0; j < hold.tiles[i].length; j++) {
+      if (hold.tiles[i][j] === 1) {
+        holdCtx.fillStyle = hold.color;
+        holdCtx.fillRect(
+        j * holdCanvas.width/6 + holdCanvas.width/4, 
+        i * holdCanvas.height/4 + holdCanvas.height/4, 
+        holdCanvas.width/6, 
+        holdCanvas.height/4);
+      }
+    }
+  }
+}
+
+function changeHold() {
+  // switch hold and currentBlock
+  let tempBlock = currentBlock; 
+  currentBlock = hold;
+  hold = tempBlock;
+
+  // set new currentBlock
+  if (currentBlock == null) {
+    currentBlock = queue.dequeue();
+  }
+
+  drawHold();
+}
+
+function drawScore() {
+  document.getElementById("score").innerHTML=`Score: ${score}`;
 }
 
 function drawQueue() {
@@ -80,19 +122,23 @@ function placeBlock(block) {
       }
     }
   }
+
   // check for full rows
-  for (let i = 0; i < window.HEIGHT; i++) {
-    if (isRowFull(window.gameBoard[i])) {
-      clearRow(i);
-      score += 100 * level;
-    }
-  }
+  clearRows();
   // check for game over
+  isGameOver();
+}
+
+// check if game is over and end game
+function isGameOver() {
   for (let i = 0; i < window.WIDTH; i++) {
     if (window.gameBoard[0][i] !== null) {
-      document.getElementById('modal').style.visibility = 'visible';
+      document.getElementById('modal').style.display = 'flex';
+      clearInterval(intervalId);
+      return true;
     }
   }
+  return false;
 }
 
 // check if a row is full
@@ -106,13 +152,22 @@ function isRowFull(row) {
 }
 
 // clear a row and move everything down
-function clearRow(row) {
-  for (let i = row; i > 0; i--) {
-    window.gameBoard[i] = window.gameBoard[i-1];
-  }
-  window.gameBoard[0] = [];
-  for (let i = 0; i < window.WIDTH; i++) {
-    window.gameBoard[0][i] = null;
+function clearRows() {
+  for (let row = 0; row < window.HEIGHT; row++) {
+    if (isRowFull(window.gameBoard[row])) {
+      // move each row down
+      for (let rowIndex = row; rowIndex > 0; rowIndex--) {
+        window.gameBoard[rowIndex] = window.gameBoard[rowIndex-1];
+      }
+      window.gameBoard[0] = [];
+      // clear top row
+      for (let rowIndex = 0; rowIndex < window.WIDTH; rowIndex++) {
+        window.gameBoard[0][rowIndex] = null;
+      }
+      // update score
+      score += 100 * level;
+      drawScore()
+    }
   }
 }
 
@@ -141,11 +196,6 @@ function drawBlock(block) {
   }
   ctx.translate(-0.5, -0.5);
 }
-
-// window.addEventListener('resize', () => {
-//   canvas.style.height = `${Math.round(parseFloat(getComputedStyle(canvas).height))}px`;
-//   canvas.style.width = `${Math.round(parseFloat(getComputedStyle(canvas).width))}px`;
-// });
 
 // Draw board
 function drawGameBoard() {
@@ -180,21 +230,53 @@ function drawGameBoard() {
 
 // START GAME
 function init() {
+
+  window.requestAnimationFrame(gameLoop);
+
   // Hide modal
-  document.getElementById('modal').style.visibility = 'hidden';
+  document.getElementById('modal').style.display = 'none';
 
   // create game board
   createGameBoard();
 
   // create queue
   queue = new Queue();
-  for (let i = 0; i < QUEUE_SIZE; i++) {
+  for (let i = 0; i < QUEUE_SIZE; i++) 
     queue.enqueue(generateBlock());
-  }
+
   drawQueue();
 
   // initialize current block
   currentBlock = generateBlock();
+
+  runInterval();
+
+  // Key stroke listenener
+  document.addEventListener('keydown', function(event) {
+    switch (event.code) {
+      case 'ArrowDown': // move block down
+        currentBlock.moveDown();
+        break;
+      case 'ArrowLeft': // move block left
+        currentBlock.moveLeft();
+        break;
+      case 'ArrowRight': // move block right
+        currentBlock.moveRight();
+        break;
+      case 'ArrowUp': // rotate block right
+        currentBlock.rotate();
+        break;
+      case 'Space': // snap block down
+        currentBlock.snapDown();
+        runInterval(true);
+        break;
+      case 'KeyC': // hold block
+        changeHold();
+        break;
+    }
+  });
+
+  drawScore()
 }
 
 // start/restart interval loop
@@ -223,34 +305,6 @@ function runInterval(placeable=false) {
 }
 
 init();
-runInterval();
-
-// Key stroke listenener
-document.addEventListener('keydown', function(event) {
-  switch (event.code) {
-    case 'ArrowDown':
-      // Handle up arrow key press
-      currentBlock.moveDown();
-      break;
-    case 'ArrowLeft':
-      // Handle left arrow key press
-      currentBlock.moveLeft();
-      break;
-    case 'ArrowRight':
-      // Handle right arrow key press
-      currentBlock.moveRight();
-      break;
-    case 'ArrowUp': // rotate right
-      // Handle right arrow key press
-      currentBlock.rotate();
-      break;
-    case 'Space':
-      // Handle right arrow key press
-      currentBlock.snapDown();
-      runInterval(true);
-      break; 
-  }
-});
 
 // Game Loop
 function gameLoop() {
@@ -258,5 +312,3 @@ function gameLoop() {
   drawBlock(currentBlock);
   window.requestAnimationFrame(gameLoop);
 }
-
-window.requestAnimationFrame(gameLoop);
