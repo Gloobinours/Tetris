@@ -6,36 +6,27 @@ export class Block {
     this.y = 0;
   }
 
-  #isColliding() {
-    // check if block is colliding with another block or out of bounds
-    for (let i = 0; i < this.tiles.length; i++) {
-      for (let j = 0; j < this.tiles[i].length; j++) {
-        if (this.tiles[i][j] === 1) {
-          if (gameBoard[this.y + i][this.x + j] !== null) return true;
-        }
+  #isColliding(tempTiles) {
+    // check if block is colliding with another block
+    for (let i = 0; i < tempTiles.length; i++) {
+      for (let j = 0; j < tempTiles[i].length; j++) {
+        if (tempTiles[i][j] === 1 && gameBoard[this.y + i][this.x + j] !== null) return true;
       }
     }
   }
 
-  #rotateCollision(rotatedTiles) {
+  #rotateCollision(tempTiles) {
     // while rotated block is colliding with another block, move it up
-    for (let z = 0; true; z++) {
-      for (let i = 0; i < rotatedTiles.length; i++) {
-        for (let j = 0; j < rotatedTiles[i].length; j++) {
-          if (rotatedTiles[i][j] === 1) {
-            if (gameBoard[this.y + i][this.x + j] !== null) {
-              this.y--;
-            } else return;
-            if (z > 2) {
-              this.y += 3;
-              return;
-            }
-          }
-        }
+    for (let z = 1; true; z++) {
+      if (z >= 3) {
+        this.y += 2;
+        return false;
       }
+      else if (this.#isColliding(tempTiles)) {
+        this.y--;
+      } else return true;
     }
   }
-
 
   rotate() {
     const rotatedTiles = [];
@@ -47,15 +38,16 @@ export class Block {
       rotatedTiles.push(newRow);
     }
 
-    this.#rotateCollision(rotatedTiles)
-
-    // if rotated block is out of bounds, move it back in bounds
+    // keep block in bounds
     if (this.x + rotatedTiles[0].length >= window.WIDTH) {
       this.x = window.WIDTH - rotatedTiles[0].length;
     }
     if (this.y + rotatedTiles.length >= window.HEIGHT) {
       this.y = window.HEIGHT - rotatedTiles.length;
     }
+
+    // handle collisions
+    if (!this.#rotateCollision(rotatedTiles)) return;
 
     // set rotated tiles to current block
     this.tiles = rotatedTiles;
