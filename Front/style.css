@@ -45,6 +45,7 @@ body {
   width: 45vh;
   position: relative;
   display: block;
+  box-shadow: 16px 12px 46px -20px rgba(0,0,0,0.42);
 }
 
 #queue {
@@ -54,6 +55,7 @@ body {
   height: 90vh;
   border-radius: 0 15px 15px 0;
   background-color: #f2f2f2;
+  box-shadow: 16px 12px 46px -20px rgba(0,0,0,0.42);
 }
 #queueCanvas {
   width: auto;
@@ -62,14 +64,14 @@ body {
 }
 
 #left-menu {
-  bottom: calc(30vh - 2px);
+  bottom: 30vh;
   display: block;
   position: relative;
   width: 30vh;
   height: 30vh;
   border-radius: 15px 0 0 15px;
   background-color: #f2f2f2;
-  border: 2px solid black;
+  box-shadow: 16px 12px 46px -20px rgba(0,0,0,0.42);
 }
 #hold {
   width: 100%;

@@ -206,14 +206,6 @@ function drawBlock(block) {
           (block.y + i) * canvas.height/window.HEIGHT, 
           canvas.width/window.WIDTH, 
           canvas.height/window.HEIGHT);
-        ctx.strokeStyle = 'black';
-        ctx.lineWidth = 15;
-        ctx.strokeRect(
-          (block.x + j) * canvas.width/window.WIDTH, 
-          (block.y + i) * canvas.height/window.HEIGHT, 
-          canvas.width/window.WIDTH, 
-          canvas.height/window.HEIGHT
-        );
       }
     }
   }
@@ -222,11 +214,15 @@ function drawBlock(block) {
 
 // Draw board
 function drawGameBoard() {
+  // gradient
+  var grd = ctx.createRadialGradient(canvas.width/2, canvas.width/2, 1000, canvas.width/2, canvas.width/2, 100);
+  grd.addColorStop(0, "#FFDEE9");
+  grd.addColorStop(1, "#B5FFFC");
+
   ctx.translate(0.5, 0.5);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = 'white';
+  ctx.fillStyle = grd;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.strokeStyle = 'black';
   ctx.strokeRect(0, 0, canvas.width, canvas.height);
   for (let i = 0; i < window.HEIGHT; i++) {
     for (let j = 0; j < window.WIDTH; j++) {
@@ -237,14 +233,6 @@ function drawGameBoard() {
           i * canvas.height/window.HEIGHT, 
           canvas.width/window.WIDTH, 
           canvas.height/window.HEIGHT);
-        ctx.strokeStyle = 'black';
-        ctx.lineWidth = 15;
-        ctx.strokeRect(
-          j * canvas.width/window.WIDTH, 
-          i * canvas.height/window.HEIGHT, 
-          canvas.width/window.WIDTH, 
-          canvas.height/window.HEIGHT
-        );
       }
     }
   }
