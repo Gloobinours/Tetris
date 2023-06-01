@@ -17,6 +17,7 @@ let level;
 let speed;
 let hold;
 let gameOver = false;
+let holded = false;
 
 /**
  * List of playable window.blocks
@@ -75,6 +76,10 @@ function drawHold() {
  * Change current holded the block to a new block
  */
 function changeHold() {
+  // check if holded
+  if (holded) return;
+  holded = true;
+
   // switch hold and currentBlock
   let tempBlock = currentBlock; 
   currentBlock = hold;
@@ -213,6 +218,8 @@ function placeBlock(block) {
     }
   }
 
+  // reset holded
+  holded = false;
   // check for full rows
   clearRows();
   // check for game over
@@ -328,6 +335,7 @@ function init() {
   level = 1;
   speed = 1000;
   hold = null;
+  holded = false;
   drawHold();
 
   window.requestAnimationFrame(gameLoop);
