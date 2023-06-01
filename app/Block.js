@@ -1,7 +1,9 @@
 export class Block {
-  constructor(tiles, color, x) {
+  constructor(tiles, r, g, b, x) {
     this.tiles = tiles;
-    this.color = color;
+    this.r = r;
+    this.g = g;
+    this.b = b;
     this.x = x;
     this.y = 0;
   }
@@ -98,6 +100,10 @@ export class Block {
       }
     }
     return false;
+  }
+
+  getColor(alpha=1) {
+    return `rgba(${this.r}, ${this.g}, ${this.b}, ${alpha})`;
   }
 
 }
