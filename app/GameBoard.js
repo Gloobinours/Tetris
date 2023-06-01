@@ -131,7 +131,10 @@ function drawQueue() {
   }
 }
 
-// Draw current block
+/**
+ * Randomly generate a block from {@link blocks}
+ * @returns {Block} random block
+ */
 function drawBlock() {
   ctx.translate(0.5, 0.5);
   for (let i = 0; i < currentBlock.tiles.length; i++) {
@@ -158,7 +161,9 @@ function drawBlock() {
   drawGhost();
 }
 
-// Draw ghost block
+/**
+ * Draw the preview block
+ */
 function drawGhost() {
   // create ghost block (duplicate of currentBlock)
   let ghost = new Block(currentBlock.type);
@@ -192,8 +197,11 @@ function drawGhost() {
   ctx.translate(-0.5, -0.5);
 }
 
-// create a block
-function generateBlock() { // generates a random block
+/**
+ * Generate a random block from {@link blocks}
+ * @returns {Block} random block
+ */
+function generateBlock() { 
   let blockNames = Object.keys(blocks);
   let randomBlockName = blockNames[Math.floor(Math.random() * blockNames.length)];
   return new Block(
@@ -201,7 +209,8 @@ function generateBlock() { // generates a random block
     blocks[randomBlockName][1], 
     blocks[randomBlockName][2], 
     blocks[randomBlockName][3], 
-    blocks[randomBlockName][4]);
+    blocks[randomBlockName][4]
+    );
 }
 
 /**
