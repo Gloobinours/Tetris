@@ -1,11 +1,33 @@
+/**
+ * Represent a block in the game.
+ * A block can be used in the gameboard as well as in the queue and the hold slot.
+ */
 export class Block {
-  constructor(tiles, color, x) {
+  /**
+   * Constructs a new Block object with the given parameters.
+   *
+   * @param type the type of block
+   * @param tiles the tiles that make up the block
+   * @param r the red component of the block's color
+   * @param g the green component of the block's color
+   * @param b the blue component of the block's color
+   * @param x the x-coordinate of the block's position
+   */
+  constructor(type, tiles, r, g, b, x) {
+    this.type = type;
     this.tiles = tiles;
-    this.color = color;
+    this.r = r;
+    this.g = g;
+    this.b = b;
     this.x = x;
     this.y = 0;
   }
 
+  /**
+   * Check if the block is colliding with other blocks
+   * @param {array} tempTiles Block tiles
+   * @returns {boolean}
+   */
   #isColliding(tempTiles) {
     // check if block is colliding with another block
     for (let i = 0; i < tempTiles.length; i++) {
@@ -15,6 +37,11 @@ export class Block {
     }
   }
 
+  /**
+   * Handle collisions for rating
+   * @param {*} tempTiles Block tiles
+   * @returns 
+   */
   #rotateCollision(tempTiles) {
     // while rotated block is colliding with another block, move it up
     for (let z = 1; true; z++) {
@@ -28,6 +55,9 @@ export class Block {
     }
   }
 
+  /**
+   * Rotate the block clockwise
+   */
   rotate() {
     const rotatedTiles = [];
     for (let i = 0; i < this.tiles[0].length; i++) {
@@ -53,6 +83,9 @@ export class Block {
     this.tiles = rotatedTiles;
   }
 
+  /**
+   * Move block left by one tile
+   */
   moveLeft() {
     if (this.x <= 0) return; // block out of bounds
     // check if block would collide with another block
@@ -66,6 +99,9 @@ export class Block {
 
     this.x--;
   }
+  /**
+   * Move block right by one tile
+   */
   moveRight() {
     if (this.x + this.tiles[0].length >= window.WIDTH) return; // block out of bounds
     // check if block would collide with another block
@@ -78,16 +114,26 @@ export class Block {
     }
     this.x++;
   }
+  /**
+   * Manually moves the block down by one tiles + gravity
+   */
   moveDown() {
     if (this.isAtBottom()) return; // block out of bounds
     this.y++;
   }
+  /**
+   * Snap the block at the bottom of the gameboard
+   */
   snapDown() {
     while (!this.isAtBottom()) {
       this.moveDown();
     }
   }
 
+  /**
+   * Check if the block can't go further down
+   * @returns {boolean}
+   */
   isAtBottom() {
     for (let i = 0; i < this.tiles.length; i++) {
       for (let j = 0; j < this.tiles[i].length; j++) {
@@ -98,6 +144,24 @@ export class Block {
       }
     }
     return false;
+  }
+
+  /**
+   * Returns the color of the block in RGBA format.
+   * 
+   * @param alpha The alpha value of the color (default is 1).
+   * @return The color of the block in RGBA format.
+   */
+  getColor(alpha=1) {
+    return `rgba(${this.r}, ${this.g}, ${this.b}, ${alpha})`;
+  }
+
+  /**
+   * Resets the block to its initial state.
+   */
+  reset() {
+    this.tiles = window.blocks[this.type].tiles;
+    this.x = window.blocks[this.type].x;
   }
 
 }

@@ -1,5 +1,6 @@
 import { Queue } from './Queue.js';
 import { Block } from './Block.js';
+import { Stack } from './Stack.js';
 
 window.gameBoard = [];
 window.HEIGHT = 20;
@@ -8,28 +9,34 @@ window.init = init;
 window.restartGame = restartGame;
 const QUEUE_SIZE = 5;
 let currentBlock = {};
+let stack;
 let queue;
 let intervalId;
 let canvas = document.getElementById('gameBoard');
 let ctx = canvas.getContext('2d');
-let score = 0;
-let level = 1;
-let speed = 1000;
+let score;
+let level;
+let speed;
 let hold;
 let gameOver = false;
+let holded = false;
 
-// list of blocks
-let blocks = {
-  "T": [[[0,1,0], [1,1,1]], 'purple', 3],
-  "L-left": [[[1,0,0], [1,1,1]], 'blue', 3],
-  "L-right": [[[0,0,1], [1,1,1]], 'orange', 3],
-  "Z-left": [[[1,1,0], [0,1,1]], 'red', 3],
-  "Z-right": [[[0,1,1], [1,1,0]], 'green', 3],
-  "bar": [[[1,1,1,1]], 'cyan', 3],
-  "square": [[[1,1], [1,1]], 'yellow', 4]
+/**
+ * List of playable window.blocks
+ */
+window.blocks = {
+  "T": ["T", [[0,1,0], [1,1,1]], 165, 94, 234, 3],
+  "L-left": ["L-left", [[1,0,0], [1,1,1]], 75, 123, 236, 3],
+  "L-right": ["L-right", [[0,0,1], [1,1,1]], 253, 150, 68, 3],
+  "Z-left": ["Z-left", [[1,1,0], [0,1,1]], 252, 92, 101, 3],
+  "Z-right": ["Z-right", [[0,1,1], [1,1,0]], 38, 222, 129, 3],
+  "bar": ["bar", [[1,1,1,1]], 69, 170, 242, 3],
+  "square": ["square", [[1,1], [1,1]], 254, 211, 48, 4]
 }
 
-// create a game board
+/**
+ * Create a game board
+ */
 function createGameBoard() {
   for (let i = 0; i < window.HEIGHT; i++) {
     window.gameBoard[i] = [];
@@ -39,6 +46,9 @@ function createGameBoard() {
   }
 }
 
+/**
+ * Draw the holded block
+ */
 function drawHold() {
   // Get the canvas element for the queue
   let holdCanvas = document.getElementById("hold");
@@ -48,21 +58,30 @@ function drawHold() {
   holdCtx.clearRect(0, 0, holdCanvas.width, holdCanvas.height);
 
   // draw block
-  for (let i = 0; i < hold.tiles.length; i++) {
-    for (let j = 0; j < hold.tiles[i].length; j++) {
-      if (hold.tiles[i][j] === 1) {
-        holdCtx.fillStyle = hold.color;
-        holdCtx.fillRect(
-        j * holdCanvas.width/6 + holdCanvas.width/4, 
-        i * holdCanvas.height/4 + holdCanvas.height/4, 
-        holdCanvas.width/6, 
-        holdCanvas.height/4);
+  if (hold) {
+    for (let i = 0; i < hold.tiles.length; i++) {
+      for (let j = 0; j < hold.tiles[i].length; j++) {
+        if (hold.tiles[i][j] === 1) {
+          holdCtx.fillStyle = hold.getColor();
+          holdCtx.fillRect(
+          j * holdCanvas.width/6 + holdCanvas.width/4, 
+          i * holdCanvas.height/4 + holdCanvas.height/4, 
+          holdCanvas.width/6, 
+          holdCanvas.height/4);
+        }
       }
     }
   }
 }
 
+/**
+ * Change current holded the block to a new block
+ */
 function changeHold() {
+  // check if holded
+  if (holded) return;
+  holded = true;
+
   // switch hold and currentBlock
   let tempBlock = currentBlock; 
   currentBlock = hold;
@@ -71,20 +90,31 @@ function changeHold() {
   // set new currentBlock
   if (currentBlock == null) {
     currentBlock = queue.dequeue();
+    queue.enqueue(stack.pop())
+    if (stack.isEmpty()) generateStack();
   }
 
-  drawHold();
+  // reset rotation
+  hold.tiles = window.blocks[hold.type][1];
 
   // reset location data
   currentBlock.y = 0;
   currentBlock.x = 3
+
+  drawHold();
 }
 
+/**
+ * Display the score and level of the game
+ */
 function drawScore() {
   document.getElementById("score").innerHTML=`Score: ${score}`;
   document.getElementById("level").innerHTML=`Level: ${level}`;
 }
 
+/**
+ * Draw the queue 
+ */
 function drawQueue() {
   // Get the canvas element for the queue
   let queueCanvas = document.getElementById("queueCanvas");
@@ -100,7 +130,7 @@ function drawQueue() {
     for (let i = 0; i < block.tiles.length; i++) {
       for (let j = 0; j < block.tiles[i].length; j++) {
         if (block.tiles[i][j] === 1) {
-          queueCtx.fillStyle = block.color;
+          queueCtx.fillStyle = block.getColor();
           queueCtx.fillRect(
           j * queueCanvas.width/10 + queueCanvas.width/6, 
           i * queueCanvas.height/20 + yDisplace, 
@@ -113,30 +143,115 @@ function drawQueue() {
   }
 }
 
-// create a block
-function generateBlock() { // generates a random block
-  let blockNames = Object.keys(blocks);
-  let randomBlockName = blockNames[Math.floor(Math.random() * blockNames.length)];
-  return new Block(blocks[randomBlockName][0], blocks[randomBlockName][1], blocks[randomBlockName][2]);
+/**
+ * Draw block on the gameboard
+ */
+function drawBlock() {
+  ctx.translate(0.5, 0.5);
+  for (let i = 0; i < currentBlock.tiles.length; i++) {
+    for (let j = 0; j < currentBlock.tiles[i].length; j++) {
+      if (currentBlock.tiles[i][j] === 1) {
+        ctx.fillStyle = currentBlock.getColor();
+        ctx.fillRect(
+          (currentBlock.x + j) * canvas.width/window.WIDTH, 
+          (currentBlock.y + i) * canvas.height/window.HEIGHT, 
+          canvas.width/window.WIDTH, 
+          canvas.height/window.HEIGHT);
+      }
+    }
+  }
+  ctx.translate(-0.5, -0.5);
+  drawGhost();
 }
 
-// push a block to the gameBoard
+/**
+ * Draw the preview block
+ */
+function drawGhost() {
+  // create ghost block (duplicate of currentBlock)
+  let ghost = new Block(currentBlock.type);
+  ghost.x = currentBlock.x;
+  ghost.y = currentBlock.y;
+  ghost.tiles = [...currentBlock.tiles];
+  ghost.snapDown();
+
+  // draw ghost block
+  ctx.translate(0.5, 0.5);
+  for (let i = 0; i < ghost.tiles.length; i++) {
+    for (let j = 0; j < ghost.tiles[i].length; j++) {
+      if (ghost.tiles[i][j] === 1) {
+        ctx.fillStyle = currentBlock.getColor(0.6);
+        ctx.fillRect(
+          (ghost.x + j) * canvas.width/window.WIDTH, 
+          (ghost.y + i) * canvas.height/window.HEIGHT, 
+          canvas.width/window.WIDTH, 
+          canvas.height/window.HEIGHT);
+      }
+    }
+  }
+  ctx.translate(-0.5, -0.5);
+}
+
+/**
+ * Generate a block from {@link window.blocks}, if no type is specified pick at random
+ * @param {String} type block type
+ * @returns {Block} block
+ */
+function generateBlock(type=null) {
+  // generate random block type if not specified
+  if (!type) {
+    let blockNames = Object.keys(window.blocks);
+    type = blockNames[Math.floor(Math.random() * blockNames.length)];
+  }
+  
+  // return block of specified type
+  return new Block(
+    window.blocks[type][0], 
+    window.blocks[type][1], 
+    window.blocks[type][2], 
+    window.blocks[type][3], 
+    window.blocks[type][4],
+    window.blocks[type][5]
+    );
+}
+
+/**
+ * Generates a stack containg one of each block in a random order
+ * @return {Stack} A shuffled stack of blocks.
+ */
+function generateStack() {
+  stack = new Stack();
+  for (let type in window.blocks) {
+    stack.push(generateBlock(type));
+  }
+  stack.shuffle();
+  return stack;
+}
+
+/**
+ * Push a block to the gameboard
+ * @param {Block} block Block to place on the gameboard
+ */
 function placeBlock(block) {
   for (let i = 0; i < block.tiles.length; i++) {
     for (let j = 0; j < block.tiles[i].length; j++) {
       if (block.tiles[i][j] === 1) {
-        window.gameBoard[block.y + i][block.x + j] = block.color;
+        window.gameBoard[block.y + i][block.x + j] = block.getColor();
       }
     }
   }
 
+  // reset holded
+  holded = false;
   // check for full rows
   clearRows();
   // check for game over
   isGameOver();
 }
 
-// restart the game
+/**
+ * Restart the game and asks to write the prompt
+ */
 function restartGame() {
   let text = document.getElementById("textbox").value;
   if (text == "I AM A LOSER") {
@@ -145,7 +260,10 @@ function restartGame() {
   }
 }
 
-// check if game is over and end game
+/**
+ * Check if the game is over and end the game
+ * @returns {boolean}
+ */
 function isGameOver() {
   for (let i = 0; i < window.WIDTH; i++) {
     if (window.gameBoard[0][i] !== null) {
@@ -159,7 +277,11 @@ function isGameOver() {
   return false;
 }
 
-// check if a row is full
+/**
+ * Check if a row is full
+ * @param {array} row 
+ * @returns {boolean}
+ */
 function isRowFull(row) {
   for (let i = 0; i < row.length; i++) {
     if (row[i] === null) {
@@ -169,7 +291,9 @@ function isRowFull(row) {
   return true;
 }
 
-// clear a row and move everything down
+/**
+ * Clear a row and move everything down
+ */
 function clearRows() {
   let rowsBroken = 0
   for (let row = 0; row < window.HEIGHT; row++) {
@@ -189,30 +313,13 @@ function clearRows() {
       drawScore()
       level = Math.ceil(score/1000)
       speed = 1000/level
-      console.log(level);
     }
   }
 }
 
-// Draw current block
-function drawBlock(block) {
-  ctx.translate(0.5, 0.5);
-  for (let i = 0; i < block.tiles.length; i++) {
-    for (let j = 0; j < block.tiles[i].length; j++) {
-      if (block.tiles[i][j] === 1) {
-        ctx.fillStyle = block.color;
-        ctx.fillRect(
-          (block.x + j) * canvas.width/window.WIDTH, 
-          (block.y + i) * canvas.height/window.HEIGHT, 
-          canvas.width/window.WIDTH, 
-          canvas.height/window.HEIGHT);
-      }
-    }
-  }
-  ctx.translate(-0.5, -0.5);
-}
-
-// Draw board
+/**
+ * Draw gameboard
+ */
 function drawGameBoard() {
   // gradient
   var grd = ctx.createRadialGradient(canvas.width/2, canvas.width/2, 1000, canvas.width/2, canvas.width/2, 100);
@@ -239,11 +346,33 @@ function drawGameBoard() {
   ctx.translate(-0.5, -0.5);
 }
 
-// START GAME
+/**
+ * Generates a new queue by dequeuing elements from the stack.
+ * @return {Queue} A new queue containing the dequeued elements.
+ */
+function generateQueue() {
+  let aQueue = new Queue();
+  for (let i = 0; i < QUEUE_SIZE; i++) 
+    aQueue.enqueue(stack.pop());
+    if (stack.isEmpty()) generateStack();
+  return aQueue
+}
+
+/**
+ * Initialize and start the game
+ */
 function init() {
 
   gameOver = false;
+
+  // Reset game values
   score = 0;
+  level = 1;
+  speed = 1000;
+  hold = null;
+  holded = false;
+  drawHold();
+
   window.requestAnimationFrame(gameLoop);
 
   // Hide modal
@@ -252,27 +381,33 @@ function init() {
   // create game board
   createGameBoard();
 
-  // create queue
-  queue = new Queue();
-  for (let i = 0; i < QUEUE_SIZE; i++) 
-    queue.enqueue(generateBlock());
+  // create stack
+  stack = generateStack();  
 
-  drawQueue();
+  // create queue
+  queue = generateQueue();
 
   // initialize current block
-  currentBlock = generateBlock();
+  currentBlock = queue.dequeue();
+  queue.enqueue(stack.pop())
+  if (stack.isEmpty()) generateStack();
 
+  drawQueue();
   runInterval();
-  drawScore()
+  drawScore();
 }
 
-// start/restart interval loop
+/**
+ * Start/restart interval loop
+ * @param {boolean} placeable Check if the block is placeable
+ */
 function runInterval(placeable=false) {
   clearInterval(intervalId);
   if (placeable) {
     placeBlock(currentBlock);
     currentBlock = queue.dequeue();
-    queue.enqueue(generateBlock());
+    queue.enqueue(stack.pop());
+    if (stack.isEmpty()) generateStack();
     drawQueue();
     placeable = false;
   }
@@ -283,7 +418,8 @@ function runInterval(placeable=false) {
       if (placeable) {
         placeBlock(currentBlock);
         currentBlock = queue.dequeue();
-        queue.enqueue(generateBlock());
+        queue.enqueue(stack.pop());
+        if (stack.isEmpty()) generateStack();
         drawQueue();
         placeable = false;
       } else placeable = true;
@@ -291,7 +427,9 @@ function runInterval(placeable=false) {
   }, speed);
 }
 
-// Key stroke listenener
+/**
+ * Key stroke listener
+ */
 document.addEventListener('keydown', function(event) {
   switch (event.code) {
     case 'ArrowDown': // move block down
@@ -317,13 +455,14 @@ document.addEventListener('keydown', function(event) {
   }
 });
 
-init();
-
-// Game Loop
+/**
+ * Gameloop running in the background
+ */
 function gameLoop() {
   if (gameOver == true) return;
   drawGameBoard();
-  drawBlock(currentBlock);
+  drawBlock();
   window.requestAnimationFrame(gameLoop);
-  console.log("game loop");
 }
+
+init();
