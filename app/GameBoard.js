@@ -12,9 +12,9 @@ let queue;
 let intervalId;
 let canvas = document.getElementById('gameBoard');
 let ctx = canvas.getContext('2d');
-let score = 0;
-let level = 1;
-let speed = 1000;
+let score;
+let level;
+let speed;
 let hold;
 let gameOver = false;
 
@@ -48,15 +48,17 @@ function drawHold() {
   holdCtx.clearRect(0, 0, holdCanvas.width, holdCanvas.height);
 
   // draw block
-  for (let i = 0; i < hold.tiles.length; i++) {
-    for (let j = 0; j < hold.tiles[i].length; j++) {
-      if (hold.tiles[i][j] === 1) {
-        holdCtx.fillStyle = hold.getColor();
-        holdCtx.fillRect(
-        j * holdCanvas.width/6 + holdCanvas.width/4, 
-        i * holdCanvas.height/4 + holdCanvas.height/4, 
-        holdCanvas.width/6, 
-        holdCanvas.height/4);
+  if (hold) {
+    for (let i = 0; i < hold.tiles.length; i++) {
+      for (let j = 0; j < hold.tiles[i].length; j++) {
+        if (hold.tiles[i][j] === 1) {
+          holdCtx.fillStyle = hold.color;
+          holdCtx.fillRect(
+          j * holdCanvas.width/6 + holdCanvas.width/4, 
+          i * holdCanvas.height/4 + holdCanvas.height/4, 
+          holdCanvas.width/6, 
+          holdCanvas.height/4);
+        }
       }
     }
   }
@@ -261,11 +263,15 @@ function clearRows() {
 
 // Draw board
 function drawGameBoard() {
+  // gradient
+  var grd = ctx.createRadialGradient(canvas.width/2, canvas.width/2, 1000, canvas.width/2, canvas.width/2, 100);
+  grd.addColorStop(0, "#FFDEE9");
+  grd.addColorStop(1, "#B5FFFC");
+
   ctx.translate(0.5, 0.5);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = 'white';
+  ctx.fillStyle = grd;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.strokeStyle = 'black';
   ctx.strokeRect(0, 0, canvas.width, canvas.height);
   for (let i = 0; i < window.HEIGHT; i++) {
     for (let j = 0; j < window.WIDTH; j++) {
@@ -276,14 +282,6 @@ function drawGameBoard() {
           i * canvas.height/window.HEIGHT, 
           canvas.width/window.WIDTH, 
           canvas.height/window.HEIGHT);
-        ctx.strokeStyle = 'black';
-        ctx.lineWidth = 15;
-        ctx.strokeRect(
-          j * canvas.width/window.WIDTH, 
-          i * canvas.height/window.HEIGHT, 
-          canvas.width/window.WIDTH, 
-          canvas.height/window.HEIGHT
-        );
       }
     }
   }
@@ -294,7 +292,14 @@ function drawGameBoard() {
 function init() {
 
   gameOver = false;
+
+  // Reset game values
   score = 0;
+  level = 1;
+  speed = 1000;
+  hold = null;
+  drawHold();
+
   window.requestAnimationFrame(gameLoop);
 
   // Hide modal
@@ -314,7 +319,7 @@ function init() {
   currentBlock = generateBlock();
 
   runInterval();
-  drawScore()
+  drawScore();
 }
 
 // start/restart interval loop
