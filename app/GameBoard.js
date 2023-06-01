@@ -301,27 +301,6 @@ function clearRows() {
 }
 
 /**
- * Draw current block
- * @param {Block} block Block to draw
- */
-function drawBlock(block) {
-  ctx.translate(0.5, 0.5);
-  for (let i = 0; i < block.tiles.length; i++) {
-    for (let j = 0; j < block.tiles[i].length; j++) {
-      if (block.tiles[i][j] === 1) {
-        ctx.fillStyle = block.color;
-        ctx.fillRect(
-          (block.x + j) * canvas.width/window.WIDTH, 
-          (block.y + i) * canvas.height/window.HEIGHT, 
-          canvas.width/window.WIDTH, 
-          canvas.height/window.HEIGHT);
-      }
-    }
-  }
-  ctx.translate(-0.5, -0.5);
-}
-
-/**
  * Draw gameboard
  */
 function drawGameBoard() {
