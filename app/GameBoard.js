@@ -145,14 +145,6 @@ function drawBlock() {
           (currentBlock.y + i) * canvas.height/window.HEIGHT, 
           canvas.width/window.WIDTH, 
           canvas.height/window.HEIGHT);
-        ctx.strokeStyle = 'black';
-        ctx.lineWidth = 15;
-        ctx.strokeRect(
-          (currentBlock.x + j) * canvas.width/window.WIDTH, 
-          (currentBlock.y + i) * canvas.height/window.HEIGHT, 
-          canvas.width/window.WIDTH, 
-          canvas.height/window.HEIGHT
-        );
       }
     }
   }
@@ -182,14 +174,6 @@ function drawGhost() {
           (ghost.y + i) * canvas.height/window.HEIGHT, 
           canvas.width/window.WIDTH, 
           canvas.height/window.HEIGHT);
-        ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
-        ctx.lineWidth = 15;
-        ctx.strokeRect(
-          (ghost.x + j) * canvas.width/window.WIDTH, 
-          (ghost.y + i) * canvas.height/window.HEIGHT, 
-          canvas.width/window.WIDTH, 
-          canvas.height/window.HEIGHT
-        );
       }
     }
   }
