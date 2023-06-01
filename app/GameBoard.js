@@ -18,7 +18,9 @@ let speed;
 let hold;
 let gameOver = false;
 
-// list of blocks
+/**
+ * List of playable blocks
+ */
 let blocks = {
   "T": [[[0,1,0], [1,1,1]], 128, 0, 128, 3],
   "L-left": [[[1,0,0], [1,1,1]], 0, 0, 255, 3],
@@ -29,7 +31,9 @@ let blocks = {
   "square": [[[1,1], [1,1]], 255, 255, 0, 4]
 }
 
-// create a game board
+/**
+ * Create a game board
+ */
 function createGameBoard() {
   for (let i = 0; i < window.HEIGHT; i++) {
     window.gameBoard[i] = [];
@@ -39,6 +43,9 @@ function createGameBoard() {
   }
 }
 
+/**
+ * Draw the holded block
+ */
 function drawHold() {
   // Get the canvas element for the queue
   let holdCanvas = document.getElementById("hold");
@@ -64,6 +71,9 @@ function drawHold() {
   }
 }
 
+/**
+ * Change current holded the block to a new block
+ */
 function changeHold() {
   // switch hold and currentBlock
   let tempBlock = currentBlock; 
@@ -82,11 +92,17 @@ function changeHold() {
   currentBlock.x = 3
 }
 
+/**
+ * Display the score and level of the game
+ */
 function drawScore() {
   document.getElementById("score").innerHTML=`Score: ${score}`;
   document.getElementById("level").innerHTML=`Level: ${level}`;
 }
 
+/**
+ * Draw the queue 
+ */
 function drawQueue() {
   // Get the canvas element for the queue
   let queueCanvas = document.getElementById("queueCanvas");
@@ -115,7 +131,10 @@ function drawQueue() {
   }
 }
 
-// Draw current block
+/**
+ * Randomly generate a block from {@link blocks}
+ * @returns {Block} random block
+ */
 function drawBlock() {
   ctx.translate(0.5, 0.5);
   for (let i = 0; i < currentBlock.tiles.length; i++) {
@@ -142,7 +161,9 @@ function drawBlock() {
   drawGhost();
 }
 
-// Draw ghost block
+/**
+ * Draw the preview block
+ */
 function drawGhost() {
   // create ghost block (duplicate of currentBlock)
   let ghost = new Block(currentBlock.type);
@@ -176,8 +197,11 @@ function drawGhost() {
   ctx.translate(-0.5, -0.5);
 }
 
-// create a block
-function generateBlock() { // generates a random block
+/**
+ * Generate a random block from {@link blocks}
+ * @returns {Block} random block
+ */
+function generateBlock() { 
   let blockNames = Object.keys(blocks);
   let randomBlockName = blockNames[Math.floor(Math.random() * blockNames.length)];
   return new Block(
@@ -185,10 +209,14 @@ function generateBlock() { // generates a random block
     blocks[randomBlockName][1], 
     blocks[randomBlockName][2], 
     blocks[randomBlockName][3], 
-    blocks[randomBlockName][4]);
+    blocks[randomBlockName][4]
+    );
 }
 
-// push a block to the gameBoard
+/**
+ * Push a block to the gameboard
+ * @param {Block} block Block to place on the gameboard
+ */
 function placeBlock(block) {
   for (let i = 0; i < block.tiles.length; i++) {
     for (let j = 0; j < block.tiles[i].length; j++) {
@@ -204,7 +232,9 @@ function placeBlock(block) {
   isGameOver();
 }
 
-// restart the game
+/**
+ * Restart the game and asks to write the prompt
+ */
 function restartGame() {
   let text = document.getElementById("textbox").value;
   if (text == "I AM A LOSER") {
@@ -213,7 +243,10 @@ function restartGame() {
   }
 }
 
-// check if game is over and end game
+/**
+ * Check if the game is over and end the game
+ * @returns {boolean}
+ */
 function isGameOver() {
   for (let i = 0; i < window.WIDTH; i++) {
     if (window.gameBoard[0][i] !== null) {
@@ -227,7 +260,11 @@ function isGameOver() {
   return false;
 }
 
-// check if a row is full
+/**
+ * Check if a row is full
+ * @param {array} row 
+ * @returns {boolean}
+ */
 function isRowFull(row) {
   for (let i = 0; i < row.length; i++) {
     if (row[i] === null) {
@@ -237,7 +274,9 @@ function isRowFull(row) {
   return true;
 }
 
-// clear a row and move everything down
+/**
+ * Clear a row and move everything down
+ */
 function clearRows() {
   let rowsBroken = 0
   for (let row = 0; row < window.HEIGHT; row++) {
@@ -261,7 +300,30 @@ function clearRows() {
   }
 }
 
-// Draw board
+/**
+ * Draw current block
+ * @param {Block} block Block to draw
+ */
+function drawBlock(block) {
+  ctx.translate(0.5, 0.5);
+  for (let i = 0; i < block.tiles.length; i++) {
+    for (let j = 0; j < block.tiles[i].length; j++) {
+      if (block.tiles[i][j] === 1) {
+        ctx.fillStyle = block.color;
+        ctx.fillRect(
+          (block.x + j) * canvas.width/window.WIDTH, 
+          (block.y + i) * canvas.height/window.HEIGHT, 
+          canvas.width/window.WIDTH, 
+          canvas.height/window.HEIGHT);
+      }
+    }
+  }
+  ctx.translate(-0.5, -0.5);
+}
+
+/**
+ * Draw gameboard
+ */
 function drawGameBoard() {
   // gradient
   var grd = ctx.createRadialGradient(canvas.width/2, canvas.width/2, 1000, canvas.width/2, canvas.width/2, 100);
@@ -288,7 +350,9 @@ function drawGameBoard() {
   ctx.translate(-0.5, -0.5);
 }
 
-// START GAME
+/**
+ * Initialize and start the game
+ */
 function init() {
 
   gameOver = false;
@@ -322,7 +386,10 @@ function init() {
   drawScore();
 }
 
-// start/restart interval loop
+/**
+ * Start/restart interval loop
+ * @param {boolean} placeable Check if the block is placeable
+ */
 function runInterval(placeable=false) {
   clearInterval(intervalId);
   if (placeable) {
@@ -347,7 +414,9 @@ function runInterval(placeable=false) {
   }, speed);
 }
 
-// Key stroke listenener
+/**
+ * Key stroke listener
+ */
 document.addEventListener('keydown', function(event) {
   switch (event.code) {
     case 'ArrowDown': // move block down
@@ -373,12 +442,14 @@ document.addEventListener('keydown', function(event) {
   }
 });
 
-init();
-
-// Game Loop
+/**
+ * Gameloop running in the background
+ */
 function gameLoop() {
   if (gameOver == true) return;
   drawGameBoard();
   drawBlock();
   window.requestAnimationFrame(gameLoop);
 }
+
+init();
