@@ -10,7 +10,7 @@ export class Queue {
   }
 
   /**
-   * Enqueue any item in the queue
+   * Enqueue any node in the queue
    * @param {*} item 
    */
   enqueue(item) {
