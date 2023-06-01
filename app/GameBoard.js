@@ -22,13 +22,13 @@ let gameOver = false;
  * List of playable blocks
  */
 let blocks = {
-  "T": [[[0,1,0], [1,1,1]], 128, 0, 128, 3],
-  "L-left": [[[1,0,0], [1,1,1]], 0, 0, 255, 3],
-  "L-right": [[[0,0,1], [1,1,1]], 255, 165, 0, 3],
-  "Z-left": [[[1,1,0], [0,1,1]], 255, 0, 0, 3],
-  "Z-right": [[[0,1,1], [1,1,0]], 0, 128, 0, 3],
-  "bar": [[[1,1,1,1]], 0, 255, 255, 3],
-  "square": [[[1,1], [1,1]], 255, 255, 0, 4]
+  "T": [[[0,1,0], [1,1,1]], 165, 94, 234, 3],
+  "L-left": [[[1,0,0], [1,1,1]], 75, 123, 236, 3],
+  "L-right": [[[0,0,1], [1,1,1]], 253, 150, 68, 3],
+  "Z-left": [[[1,1,0], [0,1,1]], 252, 92, 101, 3],
+  "Z-right": [[[0,1,1], [1,1,0]], 38, 222, 129, 3],
+  "bar": [[[1,1,1,1]], 69, 170, 242, 3],
+  "square": [[[1,1], [1,1]], 254, 211, 48, 4]
 }
 
 /**
@@ -169,7 +169,7 @@ function drawGhost() {
   for (let i = 0; i < ghost.tiles.length; i++) {
     for (let j = 0; j < ghost.tiles[i].length; j++) {
       if (ghost.tiles[i][j] === 1) {
-        ctx.fillStyle = currentBlock.getColor(0.3);
+        ctx.fillStyle = currentBlock.getColor(0.6);
         ctx.fillRect(
           (ghost.x + j) * canvas.width/window.WIDTH, 
           (ghost.y + i) * canvas.height/window.HEIGHT, 
