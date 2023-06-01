@@ -12,9 +12,9 @@ let queue;
 let intervalId;
 let canvas = document.getElementById('gameBoard');
 let ctx = canvas.getContext('2d');
-let score = 0;
-let level = 1;
-let speed = 1000;
+let score;
+let level;
+let speed;
 let hold;
 let gameOver = false;
 
@@ -48,15 +48,17 @@ function drawHold() {
   holdCtx.clearRect(0, 0, holdCanvas.width, holdCanvas.height);
 
   // draw block
-  for (let i = 0; i < hold.tiles.length; i++) {
-    for (let j = 0; j < hold.tiles[i].length; j++) {
-      if (hold.tiles[i][j] === 1) {
-        holdCtx.fillStyle = hold.color;
-        holdCtx.fillRect(
-        j * holdCanvas.width/6 + holdCanvas.width/4, 
-        i * holdCanvas.height/4 + holdCanvas.height/4, 
-        holdCanvas.width/6, 
-        holdCanvas.height/4);
+  if (hold) {
+    for (let i = 0; i < hold.tiles.length; i++) {
+      for (let j = 0; j < hold.tiles[i].length; j++) {
+        if (hold.tiles[i][j] === 1) {
+          holdCtx.fillStyle = hold.color;
+          holdCtx.fillRect(
+          j * holdCanvas.width/6 + holdCanvas.width/4, 
+          i * holdCanvas.height/4 + holdCanvas.height/4, 
+          holdCanvas.width/6, 
+          holdCanvas.height/4);
+        }
       }
     }
   }
@@ -189,7 +191,6 @@ function clearRows() {
       drawScore()
       level = Math.ceil(score/1000)
       speed = 1000/level
-      console.log(level);
     }
   }
 }
@@ -243,7 +244,14 @@ function drawGameBoard() {
 function init() {
 
   gameOver = false;
+
+  // Reset game values
   score = 0;
+  level = 1;
+  speed = 1000;
+  hold = null;
+  drawHold();
+
   window.requestAnimationFrame(gameLoop);
 
   // Hide modal
@@ -263,7 +271,7 @@ function init() {
   currentBlock = generateBlock();
 
   runInterval();
-  drawScore()
+  drawScore();
 }
 
 // start/restart interval loop
@@ -325,5 +333,4 @@ function gameLoop() {
   drawGameBoard();
   drawBlock(currentBlock);
   window.requestAnimationFrame(gameLoop);
-  console.log("game loop");
 }
