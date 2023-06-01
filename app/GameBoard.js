@@ -52,7 +52,7 @@ function drawHold() {
     for (let i = 0; i < hold.tiles.length; i++) {
       for (let j = 0; j < hold.tiles[i].length; j++) {
         if (hold.tiles[i][j] === 1) {
-          holdCtx.fillStyle = hold.color;
+          holdCtx.fillStyle = hold.getColor();
           holdCtx.fillRect(
           j * holdCanvas.width/6 + holdCanvas.width/4, 
           i * holdCanvas.height/4 + holdCanvas.height/4, 
