@@ -22,13 +22,13 @@ let gameOver = false;
  * List of playable blocks
  */
 let blocks = {
-  "T": [[[0,1,0], [1,1,1]], 'purple', 3],
-  "L-left": [[[1,0,0], [1,1,1]], 'blue', 3],
-  "L-right": [[[0,0,1], [1,1,1]], 'orange', 3],
-  "Z-left": [[[1,1,0], [0,1,1]], 'red', 3],
-  "Z-right": [[[0,1,1], [1,1,0]], 'green', 3],
-  "bar": [[[1,1,1,1]], 'cyan', 3],
-  "square": [[[1,1], [1,1]], 'yellow', 4]
+  "T": [[[0,1,0], [1,1,1]], 128, 0, 128, 3],
+  "L-left": [[[1,0,0], [1,1,1]], 0, 0, 255, 3],
+  "L-right": [[[0,0,1], [1,1,1]], 255, 165, 0, 3],
+  "Z-left": [[[1,1,0], [0,1,1]], 255, 0, 0, 3],
+  "Z-right": [[[0,1,1], [1,1,0]], 0, 128, 0, 3],
+  "bar": [[[1,1,1,1]], 0, 255, 255, 3],
+  "square": [[[1,1], [1,1]], 255, 255, 0, 4]
 }
 
 /**
@@ -59,7 +59,7 @@ function drawHold() {
     for (let i = 0; i < hold.tiles.length; i++) {
       for (let j = 0; j < hold.tiles[i].length; j++) {
         if (hold.tiles[i][j] === 1) {
-          holdCtx.fillStyle = hold.color;
+          holdCtx.fillStyle = hold.getColor();
           holdCtx.fillRect(
           j * holdCanvas.width/6 + holdCanvas.width/4, 
           i * holdCanvas.height/4 + holdCanvas.height/4, 
@@ -118,7 +118,7 @@ function drawQueue() {
     for (let i = 0; i < block.tiles.length; i++) {
       for (let j = 0; j < block.tiles[i].length; j++) {
         if (block.tiles[i][j] === 1) {
-          queueCtx.fillStyle = block.color;
+          queueCtx.fillStyle = block.getColor();
           queueCtx.fillRect(
           j * queueCanvas.width/10 + queueCanvas.width/6, 
           i * queueCanvas.height/20 + yDisplace, 
@@ -131,14 +131,77 @@ function drawQueue() {
   }
 }
 
-/**
- * Randomly generate a block from {@link blocks}
- * @returns {Block} random block
- */
+// Draw current block
+function drawBlock() {
+  ctx.translate(0.5, 0.5);
+  for (let i = 0; i < currentBlock.tiles.length; i++) {
+    for (let j = 0; j < currentBlock.tiles[i].length; j++) {
+      if (currentBlock.tiles[i][j] === 1) {
+        ctx.fillStyle = currentBlock.getColor();
+        ctx.fillRect(
+          (currentBlock.x + j) * canvas.width/window.WIDTH, 
+          (currentBlock.y + i) * canvas.height/window.HEIGHT, 
+          canvas.width/window.WIDTH, 
+          canvas.height/window.HEIGHT);
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 15;
+        ctx.strokeRect(
+          (currentBlock.x + j) * canvas.width/window.WIDTH, 
+          (currentBlock.y + i) * canvas.height/window.HEIGHT, 
+          canvas.width/window.WIDTH, 
+          canvas.height/window.HEIGHT
+        );
+      }
+    }
+  }
+  ctx.translate(-0.5, -0.5);
+  drawGhost();
+}
+
+// Draw ghost block
+function drawGhost() {
+  // create ghost block (duplicate of currentBlock)
+  let ghost = new Block(currentBlock.type);
+  ghost.x = currentBlock.x;
+  ghost.y = currentBlock.y;
+  ghost.tiles = [...currentBlock.tiles];
+  ghost.snapDown();
+
+  // draw ghost block
+  ctx.translate(0.5, 0.5);
+  for (let i = 0; i < ghost.tiles.length; i++) {
+    for (let j = 0; j < ghost.tiles[i].length; j++) {
+      if (ghost.tiles[i][j] === 1) {
+        ctx.fillStyle = currentBlock.getColor(0.3);
+        ctx.fillRect(
+          (ghost.x + j) * canvas.width/window.WIDTH, 
+          (ghost.y + i) * canvas.height/window.HEIGHT, 
+          canvas.width/window.WIDTH, 
+          canvas.height/window.HEIGHT);
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.1)';
+        ctx.lineWidth = 15;
+        ctx.strokeRect(
+          (ghost.x + j) * canvas.width/window.WIDTH, 
+          (ghost.y + i) * canvas.height/window.HEIGHT, 
+          canvas.width/window.WIDTH, 
+          canvas.height/window.HEIGHT
+        );
+      }
+    }
+  }
+  ctx.translate(-0.5, -0.5);
+}
+
+// create a block
 function generateBlock() { // generates a random block
   let blockNames = Object.keys(blocks);
   let randomBlockName = blockNames[Math.floor(Math.random() * blockNames.length)];
-  return new Block(blocks[randomBlockName][0], blocks[randomBlockName][1], blocks[randomBlockName][2]);
+  return new Block(
+    blocks[randomBlockName][0], 
+    blocks[randomBlockName][1], 
+    blocks[randomBlockName][2], 
+    blocks[randomBlockName][3], 
+    blocks[randomBlockName][4]);
 }
 
 /**
@@ -149,7 +212,7 @@ function placeBlock(block) {
   for (let i = 0; i < block.tiles.length; i++) {
     for (let j = 0; j < block.tiles[i].length; j++) {
       if (block.tiles[i][j] === 1) {
-        window.gameBoard[block.y + i][block.x + j] = block.color;
+        window.gameBoard[block.y + i][block.x + j] = block.getColor();
       }
     }
   }
@@ -376,7 +439,7 @@ document.addEventListener('keydown', function(event) {
 function gameLoop() {
   if (gameOver == true) return;
   drawGameBoard();
-  drawBlock(currentBlock);
+  drawBlock();
   window.requestAnimationFrame(gameLoop);
 }
 
