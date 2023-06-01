@@ -1,4 +1,14 @@
+/**
+ * Represent a block in the game.
+ * A block can be used in the gameboard as well as in the queue and the hold slot.
+ */
 export class Block {
+  /**
+   * Create a new block with the given tiles, color, x-axis
+   * @param {array} tiles 2d array representing the tiles of the block
+   * @param {string} color string representing the hex color value of the block
+   * @param {int} x integer representing the wideness of the block
+   */
   constructor(tiles, color, x) {
     this.tiles = tiles;
     this.color = color;
@@ -6,6 +16,11 @@ export class Block {
     this.y = 0;
   }
 
+  /**
+   * Check if the block is colliding with other blocks
+   * @param {array} tempTiles Block tiles
+   * @returns {boolean} 
+   */
   #isColliding(tempTiles) {
     // check if block is colliding with another block
     for (let i = 0; i < tempTiles.length; i++) {
@@ -15,6 +30,11 @@ export class Block {
     }
   }
 
+  /**
+   * Handle collisions for rating
+   * @param {*} tempTiles Block tiles
+   * @returns 
+   */
   #rotateCollision(tempTiles) {
     // while rotated block is colliding with another block, move it up
     for (let z = 1; true; z++) {
@@ -28,6 +48,9 @@ export class Block {
     }
   }
 
+  /**
+   * Rotate the block clockwise
+   */
   rotate() {
     const rotatedTiles = [];
     for (let i = 0; i < this.tiles[0].length; i++) {
@@ -53,6 +76,9 @@ export class Block {
     this.tiles = rotatedTiles;
   }
 
+  /**
+   * Move block left by one tile
+   */
   moveLeft() {
     if (this.x <= 0) return; // block out of bounds
     // check if block would collide with another block
@@ -66,6 +92,9 @@ export class Block {
 
     this.x--;
   }
+  /**
+   * Move block right by one tile
+   */
   moveRight() {
     if (this.x + this.tiles[0].length >= window.WIDTH) return; // block out of bounds
     // check if block would collide with another block
@@ -78,16 +107,26 @@ export class Block {
     }
     this.x++;
   }
+  /**
+   * Manually moves the block down by one tiles + gravity
+   */
   moveDown() {
     if (this.isAtBottom()) return; // block out of bounds
     this.y++;
   }
+  /**
+   * Snap the block at the bottom of the gameboard
+   */
   snapDown() {
     while (!this.isAtBottom()) {
       this.moveDown();
     }
   }
 
+  /**
+   * Check if the block can't go further down
+   * @returns {boolean}
+   */
   isAtBottom() {
     for (let i = 0; i < this.tiles.length; i++) {
       for (let j = 0; j < this.tiles[i].length; j++) {
@@ -99,5 +138,4 @@ export class Block {
     }
     return false;
   }
-
 }
