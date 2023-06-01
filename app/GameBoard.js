@@ -1,5 +1,6 @@
 import { Queue } from './Queue.js';
 import { Block } from './Block.js';
+import { Stack } from './Stack.js';
 
 window.gameBoard = [];
 window.HEIGHT = 20;
@@ -8,6 +9,7 @@ window.init = init;
 window.restartGame = restartGame;
 const QUEUE_SIZE = 5;
 let currentBlock = {};
+let stack;
 let queue;
 let intervalId;
 let canvas = document.getElementById('gameBoard');
@@ -88,6 +90,8 @@ function changeHold() {
   // set new currentBlock
   if (currentBlock == null) {
     currentBlock = queue.dequeue();
+    queue.enqueue(stack.pop())
+    if (stack.isEmpty()) generateStack();
   }
 
   // reset rotation
@@ -189,20 +193,39 @@ function drawGhost() {
 }
 
 /**
- * Randomly generate a block from {@link window.blocks}
- * @returns {Block} random block
+ * Generate a block from {@link window.blocks}, if no type is specified pick at random
+ * @param {String} type block type
+ * @returns {Block} block
  */
-function generateBlock() { 
-  let blockNames = Object.keys(window.blocks);
-  let randomBlockName = blockNames[Math.floor(Math.random() * blockNames.length)];
+function generateBlock(type=null) {
+  // generate random block type if not specified
+  if (!type) {
+    let blockNames = Object.keys(window.blocks);
+    type = blockNames[Math.floor(Math.random() * blockNames.length)];
+  }
+  
+  // return block of specified type
   return new Block(
-    window.blocks[randomBlockName][0], 
-    window.blocks[randomBlockName][1], 
-    window.blocks[randomBlockName][2], 
-    window.blocks[randomBlockName][3], 
-    window.blocks[randomBlockName][4],
-    window.blocks[randomBlockName][5]
+    window.blocks[type][0], 
+    window.blocks[type][1], 
+    window.blocks[type][2], 
+    window.blocks[type][3], 
+    window.blocks[type][4],
+    window.blocks[type][5]
     );
+}
+
+/**
+ * Generates a stack containg one of each block in a random order
+ * @return {Stack} A shuffled stack of blocks.
+ */
+function generateStack() {
+  stack = new Stack();
+  for (let type in window.blocks) {
+    stack.push(generateBlock(type));
+  }
+  stack.shuffle();
+  return stack;
 }
 
 /**
@@ -324,6 +347,18 @@ function drawGameBoard() {
 }
 
 /**
+ * Generates a new queue by dequeuing elements from the stack.
+ * @return {Queue} A new queue containing the dequeued elements.
+ */
+function generateQueue() {
+  let aQueue = new Queue();
+  for (let i = 0; i < QUEUE_SIZE; i++) 
+    aQueue.enqueue(stack.pop());
+    if (stack.isEmpty()) generateStack();
+  return aQueue
+}
+
+/**
  * Initialize and start the game
  */
 function init() {
@@ -346,16 +381,18 @@ function init() {
   // create game board
   createGameBoard();
 
-  // create queue
-  queue = new Queue();
-  for (let i = 0; i < QUEUE_SIZE; i++) 
-    queue.enqueue(generateBlock());
+  // create stack
+  stack = generateStack();  
 
-  drawQueue();
+  // create queue
+  queue = generateQueue();
 
   // initialize current block
-  currentBlock = generateBlock();
+  currentBlock = queue.dequeue();
+  queue.enqueue(stack.pop())
+  if (stack.isEmpty()) generateStack();
 
+  drawQueue();
   runInterval();
   drawScore();
 }
@@ -369,7 +406,8 @@ function runInterval(placeable=false) {
   if (placeable) {
     placeBlock(currentBlock);
     currentBlock = queue.dequeue();
-    queue.enqueue(generateBlock());
+    queue.enqueue(stack.pop());
+    if (stack.isEmpty()) generateStack();
     drawQueue();
     placeable = false;
   }
@@ -380,7 +418,8 @@ function runInterval(placeable=false) {
       if (placeable) {
         placeBlock(currentBlock);
         currentBlock = queue.dequeue();
-        queue.enqueue(generateBlock());
+        queue.enqueue(stack.pop());
+        if (stack.isEmpty()) generateStack();
         drawQueue();
         placeable = false;
       } else placeable = true;

@@ -26,7 +26,7 @@ export class Block {
   /**
    * Check if the block is colliding with other blocks
    * @param {array} tempTiles Block tiles
-   * @returns {boolean} 
+   * @returns {boolean}
    */
   #isColliding(tempTiles) {
     // check if block is colliding with another block
