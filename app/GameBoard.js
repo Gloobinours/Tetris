@@ -132,8 +132,7 @@ function drawQueue() {
 }
 
 /**
- * Randomly generate a block from {@link blocks}
- * @returns {Block} random block
+ * Draw block on the gameboard
  */
 function drawBlock() {
   ctx.translate(0.5, 0.5);
@@ -198,7 +197,7 @@ function drawGhost() {
 }
 
 /**
- * Generate a random block from {@link blocks}
+ * Randomly generate a block from {@link blocks}
  * @returns {Block} random block
  */
 function generateBlock() { 
