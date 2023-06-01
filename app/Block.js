@@ -146,10 +146,19 @@ export class Block {
     return false;
   }
 
+  /**
+   * Returns the color of the block in RGBA format.
+   * 
+   * @param alpha The alpha value of the color (default is 1).
+   * @return The color of the block in RGBA format.
+   */
   getColor(alpha=1) {
     return `rgba(${this.r}, ${this.g}, ${this.b}, ${alpha})`;
   }
 
+  /**
+   * Resets the block to its initial state.
+   */
   reset() {
     this.tiles = window.blocks[this.type].tiles;
     this.x = window.blocks[this.type].x;
