@@ -19,16 +19,16 @@ let hold;
 let gameOver = false;
 
 /**
- * List of playable blocks
+ * List of playable window.blocks
  */
-let blocks = {
-  "T": [[[0,1,0], [1,1,1]], 165, 94, 234, 3],
-  "L-left": [[[1,0,0], [1,1,1]], 75, 123, 236, 3],
-  "L-right": [[[0,0,1], [1,1,1]], 253, 150, 68, 3],
-  "Z-left": [[[1,1,0], [0,1,1]], 252, 92, 101, 3],
-  "Z-right": [[[0,1,1], [1,1,0]], 38, 222, 129, 3],
-  "bar": [[[1,1,1,1]], 69, 170, 242, 3],
-  "square": [[[1,1], [1,1]], 254, 211, 48, 4]
+window.blocks = {
+  "T": ["T", [[0,1,0], [1,1,1]], 165, 94, 234, 3],
+  "L-left": ["L-left", [[1,0,0], [1,1,1]], 75, 123, 236, 3],
+  "L-right": ["L-right", [[0,0,1], [1,1,1]], 253, 150, 68, 3],
+  "Z-left": ["Z-left", [[1,1,0], [0,1,1]], 252, 92, 101, 3],
+  "Z-right": ["Z-right", [[0,1,1], [1,1,0]], 38, 222, 129, 3],
+  "bar": ["bar", [[1,1,1,1]], 69, 170, 242, 3],
+  "square": ["square", [[1,1], [1,1]], 254, 211, 48, 4]
 }
 
 /**
@@ -85,11 +85,14 @@ function changeHold() {
     currentBlock = queue.dequeue();
   }
 
-  drawHold();
+  // reset rotation
+  hold.tiles = window.blocks[hold.type][1];
 
   // reset location data
   currentBlock.y = 0;
   currentBlock.x = 3
+
+  drawHold();
 }
 
 /**
@@ -181,18 +184,19 @@ function drawGhost() {
 }
 
 /**
- * Randomly generate a block from {@link blocks}
+ * Randomly generate a block from {@link window.blocks}
  * @returns {Block} random block
  */
 function generateBlock() { 
-  let blockNames = Object.keys(blocks);
+  let blockNames = Object.keys(window.blocks);
   let randomBlockName = blockNames[Math.floor(Math.random() * blockNames.length)];
   return new Block(
-    blocks[randomBlockName][0], 
-    blocks[randomBlockName][1], 
-    blocks[randomBlockName][2], 
-    blocks[randomBlockName][3], 
-    blocks[randomBlockName][4]
+    window.blocks[randomBlockName][0], 
+    window.blocks[randomBlockName][1], 
+    window.blocks[randomBlockName][2], 
+    window.blocks[randomBlockName][3], 
+    window.blocks[randomBlockName][4],
+    window.blocks[randomBlockName][5]
     );
 }
 

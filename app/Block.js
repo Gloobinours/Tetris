@@ -4,12 +4,17 @@
  */
 export class Block {
   /**
-   * Create a new block with the given tiles, color, x-axis
-   * @param {array} tiles 2d array representing the tiles of the block
-   * @param {string} color string representing the hex color value of the block
-   * @param {int} x integer representing the wideness of the block
+   * Constructs a new Block object with the given parameters.
+   *
+   * @param type the type of block
+   * @param tiles the tiles that make up the block
+   * @param r the red component of the block's color
+   * @param g the green component of the block's color
+   * @param b the blue component of the block's color
+   * @param x the x-coordinate of the block's position
    */
-  constructor(tiles, r, g, b, x) {
+  constructor(type, tiles, r, g, b, x) {
+    this.type = type;
     this.tiles = tiles;
     this.r = r;
     this.g = g;
@@ -143,6 +148,11 @@ export class Block {
 
   getColor(alpha=1) {
     return `rgba(${this.r}, ${this.g}, ${this.b}, ${alpha})`;
+  }
+
+  reset() {
+    this.tiles = window.blocks[this.type].tiles;
+    this.x = window.blocks[this.type].x;
   }
 
 }
