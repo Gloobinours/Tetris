@@ -22,6 +22,7 @@ body {
   background-color: rgba(0, 0, 0, 0.5);
 }
 #modal-box {
+  min-width: 40%;
   padding: 25px;
   border-radius: 10px;
   background-color: #f2f2f2;
@@ -31,9 +32,19 @@ body {
   gap: 10px;
 }
 #modal-box input {
-  width: 80%;
+  width: 70%;
   height: 30px;
   font-size: 20px;
+  text-align: center;
+  background-color: rgba(0, 0, 0, 0);
+  border: none;
+  border-bottom: 2px solid #a17bd6;
+  transition: all .2s;
+}
+#modal-box input:focus {
+  outline: none;
+  border-color: #5f21b6;
+  padding-right: 20px;
 }
 #modal-box h2 {
   text-align: center;

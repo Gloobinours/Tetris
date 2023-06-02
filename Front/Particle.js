@@ -9,7 +9,7 @@ const particleTiming = {
   duration: 5000,
   iterations: Infinity,
 }
-const scaler = 10
+const scaler = 5
 
 /**
  * Generate an animation using css keyframes
@@ -54,7 +54,7 @@ function generateParticles() {
   }
 }
 
-let an =generateAnimation()
+let an = generateAnimation()
 /**
  * Delete previous particles and animation
  * and regenerate new particles
@@ -68,4 +68,3 @@ setInterval((an) => {
     document.getElementById(i).animate(an, particleTiming);
   }
 }, particleTiming.duration);
-
