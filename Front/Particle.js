@@ -54,17 +54,18 @@ function generateParticles() {
   }
 }
 
+let an =generateAnimation()
 /**
  * Delete previous particles and animation
  * and regenerate new particles
  */
-setInterval(() => {
+setInterval((an) => {
   while(container.firstChild) {
     container.removeChild(container.firstChild)
   }
   generateParticles();
   for (let i = 0; i < colorPalette.length*scaler; i++) {
-    document.getElementById(i).animate(generateAnimation(), particleTiming);
+    document.getElementById(i).animate(an, particleTiming);
   }
 }, particleTiming.duration);
 
