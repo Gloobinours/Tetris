@@ -22,7 +22,7 @@ let gameOver = false;
 let holded = false;
 
 /**
- * List of playable window.blocks
+ * List of playable blocks
  */
 window.blocks = {
   "T": ["T", [[0,1,0], [1,1,1]], 165, 94, 234, 3],
